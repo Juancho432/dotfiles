@@ -1,0 +1,12 @@
+#!/bin/bash
+FONT_DIR="$HOME/.local/share/fonts"
+mkdir -p "$FONT_DIR"
+
+if [ ! -f "$FONT_DIR/FiraCodeNerdFontMono-Regular.ttf" ]; then
+    echo "Descargando FiraCode Nerd Font..."
+    curl -fLo "$FONT_DIR/FiraCode.tar.xz" \
+        https://github.com/ryanoasis/nerd-fonts/releases/latest/download/FiraCode.tar.xz
+    tar -xf "$FONT_DIR/FiraCode.tar.xz" -C "$FONT_DIR"
+    rm "$FONT_DIR/FiraCode.tar.xz"
+    fc-cache -fv
+fi

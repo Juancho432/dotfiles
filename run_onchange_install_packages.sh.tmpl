@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# Identificar distribución y comando de instalación
+{{ $distro := .chezmoi.osRelease.id -}}
+{{ $distro_like := .chezmoi.osRelease.idLike -}}
+{{ $install_cmd := "" -}}
+
+{{ if eq $distro "arch" -}}
+    {{ $install_cmd = "sudo pacman -S --needed --noconfirm" -}}
+{{ else if or (eq $distro "kali") (eq $distro_like "debian") -}}
+    {{ $install_cmd = "sudo apt update && sudo apt install -y" -}}
+{{ end -}}
+
+# Construir lista combinada de paquetes evaluada en tiempo de template
+PACKAGES=(
+{{ range .packages.common.items -}}
+    {{ . }}
+{{ end -}}
+{{ if hasKey .packages $distro -}}
+{{ range (index .packages $distro).items -}}
+    {{ . }}
+{{ end -}}
+{{ end -}}
+)
+
+if [ -n "{{ $install_cmd }}" ]; then
+    echo "Instalando paquetes para {{ $distro }}..."
+    {{ $install_cmd }} "${PACKAGES[@]}"
+else
+    echo "Distribución {{ $distro }} no soportada directamente."
+    exit 1
+fi
